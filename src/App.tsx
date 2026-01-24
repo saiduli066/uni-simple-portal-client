@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/layout/MainLayout";
 import StudentDashboard from "./pages/dashboard/StudentDashboard";
 import FellowshipList from "./features/fellowship/FellowshipList";
+import EmailBenefits from "./pages/EmailBenefits";
 import { useAuthStore } from "./store/authStore";
 import useTokenRefresh from "@/lib/useTokenRefresh";
 
@@ -141,12 +142,7 @@ function App() {
                     element={
                         <ProtectedRoute allowedRoles={["student"]}>
                             <MainLayout>
-                                <div className="p-8 text-center">
-                                    <h1 className="text-2xl font-bold">Email Benefits</h1>
-                                    <p className="text-muted-foreground mt-2">
-                                        Coming soon...
-                                    </p>
-                                </div>
+                                <EmailBenefits />
                             </MainLayout>
                         </ProtectedRoute>
                     }
