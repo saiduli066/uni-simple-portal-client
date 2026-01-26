@@ -103,7 +103,7 @@ export default function StudentDashboard() {
             await withdrawFellowshipApplication(id);
             toast.success("Application withdrawn successfully.");
             setRefreshKey((k) => k + 1);
-        } catch (err: unknown) {
+        } catch (err: any) {
             toast.error(err?.response?.data?.message || "Failed to withdraw application");
         } finally {
             setWithdrawing(null);

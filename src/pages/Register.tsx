@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 import api from "@/lib/axios";
+import { toast } from "sonner";
 
-type UserRole = "student" | "teacher" | "librarian";
+type UserRole = "student" | "teacher" | "librarian" | "admin";
 
 interface FormData {
     name: string;
@@ -27,6 +28,8 @@ interface FormData {
     teacherDepartment?: string;
     // Librarian fields
     librarianId?: string;
+    // Admin fields
+    adminId?: string;
 }
 
 export default function Register() {
@@ -98,6 +101,8 @@ export default function Register() {
             if (!formData.teacherId) newErrors.teacherId = "Teacher ID is required";
             if (!formData.designation) newErrors.designation = "Designation is required";
             if (!formData.teacherDepartment) newErrors.teacherDepartment = "Department is required";
+        } else if (formData.role === "admin") {
+            if (!formData.adminId) newErrors.adminId = "Admin ID is required";
         } else if (formData.role === "librarian") {
             if (!formData.librarianId) newErrors.librarianId = "Librarian ID is required";
         }
@@ -136,23 +141,65 @@ export default function Register() {
                 registerData.teacherDepartment = formData.teacherDepartment;
             } else if (formData.role === "librarian") {
                 registerData.librarianId = formData.librarianId;
+            } else if (formData.role === "admin") {
+                registerData.adminId = formData.adminId;
             }
 
-            // API call to register endpoint
-            await api.post("/auth/register", registerData);
+            // API call to register endpoint with timeout
+            const response = await Promise.race([
+                api.post("/auth/register", registerData),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Request timeout')), 10000)
+                )
+            ]);
 
             console.log("Registration data sent:", registerData);
+            console.log("Registration response:", response);
+
+            // Show success message
+            toast.success("Registration successful! Please login.", {
+                duration: 3000,
+            });
 
             // Navigate to login after successful registration
-            navigate("/login");
+            setTimeout(() => {
+                navigate("/login");
+            }, 1500);
         } catch (error: any) {
             console.error("Registration error:", error);
+            console.error("Error response:", error.response);
+            
             // Show all backend validation errors in the form fields if available
             const backendErrors = error.response?.data?.errors;
             if (backendErrors && typeof backendErrors === "object") {
                 setErrors(backendErrors);
+                toast.error("Please fix the form errors and try again.");
             } else {
-                const message = error.response?.data?.message || "Registration failed. Please try again.";
+                let message = "Registration failed. Please try again.";
+                
+                // Show more specific error toast
+                if (!error.response) {
+                    if (error.message === 'Request timeout') {
+                        message = "Request timeout. Backend server is not responding.";
+                        toast.error("⚠️ Backend server is not responding. Please contact admin.");
+                    } else if (error.message === 'Network Error') {
+                        message = "Cannot connect to backend server. Please check your internet connection or contact admin.";
+                        toast.error("❌ Cannot connect to backend. Server might be down.");
+                    } else {
+                        message = error.message;
+                        toast.error("❌ Backend connection failed. Please try again later.");
+                    }
+                } else if (error.response.status === 409) {
+                    message = "This email is already registered.";
+                    toast.error("This email is already registered. Please use a different email.");
+                } else if (error.response.status === 400) {
+                    message = "Invalid data. Please check all fields.";
+                    toast.error("Invalid data. Please check all fields.");
+                } else {
+                    message = error.response?.data?.message || "Registration failed.";
+                    toast.error(message);
+                }
+                
                 setErrors({ email: message });
             }
         } finally {
@@ -284,6 +331,19 @@ export default function Register() {
                         required
                     />
                 );
+            case "admin":
+                return (
+                    <Input
+                        label="Admin ID"
+                        type="text"
+                        name="adminId"
+                        placeholder="e.g., A2024001"
+                        value={formData.adminId || ""}
+                        onChange={handleChange}
+                        error={errors.adminId}
+                        required
+                    />
+                );
         }
     };
 
@@ -336,8 +396,8 @@ export default function Register() {
                                 <label className="block text-sm font-medium text-foreground mb-2">
                                     I am a <span className="text-error">*</span>
                                 </label>
-                                <div className="flex gap-2">
-                                    {(["student", "teacher", "librarian"] as UserRole[]).map((role) => (
+                                <div className="grid grid-cols-2 gap-2">
+                                    {(["student", "teacher", "librarian", "admin"] as UserRole[]).map((role) => (
                                         <button
                                             key={role}
                                             type="button"

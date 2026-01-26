@@ -5,8 +5,13 @@ import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/layout/MainLayout";
 import StudentDashboard from "./pages/dashboard/StudentDashboard";
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import FellowshipList from "./features/fellowship/FellowshipList";
 import EmailBenefits from "./pages/EmailBenefits";
+import UserManagement from "./pages/admin/UserManagement";
+import LibraryManagement from "./pages/admin/LibraryManagement";
+import Settings from "./pages/admin/Settings";
+import Reports from "./pages/admin/Reports";
 import { useAuthStore } from "./store/authStore";
 import useTokenRefresh from "@/lib/useTokenRefresh";
 
@@ -57,16 +62,7 @@ function App() {
                                         </p>
                                     </div>
                                 )}
-                                {user?.role === "admin" && (
-                                    <div className="p-8 text-center">
-                                        <h1 className="text-2xl font-bold">
-                                            Admin Dashboard
-                                        </h1>
-                                        <p className="text-muted-foreground mt-2">
-                                            Coming soon...
-                                        </p>
-                                    </div>
-                                )}
+                                {user?.role === "admin" && <AdminDashboard />}
                             </MainLayout>
                         </ProtectedRoute>
                     }
@@ -116,7 +112,7 @@ function App() {
                     }
                 />
 
-                {/* Admin Fellowship Management */}
+                {/* Admin Routes */}
                 <Route
                     path="/admin/fellowships"
                     element={
@@ -127,6 +123,48 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+                <Route
+                    path="/admin/users"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <MainLayout>
+                                <UserManagement />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/library"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin", "librarian"]}>
+                            <MainLayout>
+                                <LibraryManagement />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/reports"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <MainLayout>
+                                <Reports />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/settings"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <MainLayout>
+                                <Settings />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Student/Teacher Routes */}
                 <Route
                     path="/fellowships"
                     element={

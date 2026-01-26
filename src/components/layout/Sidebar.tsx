@@ -10,6 +10,8 @@ import {
     BookMarked,
     Settings,
     GraduationCap,
+    BarChart3,
+    Library,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -60,9 +62,27 @@ const menuItems: MenuItem[] = [
         roles: ["admin"],
     },
     {
-        title: "Manage Users",
+        title: "User Management",
         icon: <Users className="w-5 h-5" />,
         path: "/admin/users",
+        roles: ["admin"],
+    },
+    {
+        title: "Library Management",
+        icon: <Library className="w-5 h-5" />,
+        path: "/admin/library",
+        roles: ["admin", "librarian"],
+    },
+    {
+        title: "Reports & Analytics",
+        icon: <BarChart3 className="w-5 h-5" />,
+        path: "/admin/reports",
+        roles: ["admin"],
+    },
+    {
+        title: "System Settings",
+        icon: <Settings className="w-5 h-5" />,
+        path: "/admin/settings",
         roles: ["admin"],
     },
     // Librarian Menu Items
@@ -78,12 +98,12 @@ const menuItems: MenuItem[] = [
         path: "/librarian/cards",
         roles: ["librarian"],
     },
-    // Common Items
+    // Common Items (non-admin)
     {
         title: "Settings",
         icon: <Settings className="w-5 h-5" />,
         path: "/settings",
-        roles: ["student", "teacher", "librarian", "admin"],
+        roles: ["student", "teacher", "librarian"],
     },
 ];
 
